@@ -10,13 +10,6 @@ export function middleware(req: NextRequest) {
   const accessToken = req.cookies.get("accessToken")?.value;
   const refreshToken = req.cookies.get("refreshToken")?.value;
 
-  console.log("========== MIDDLEWARE ==========");
-  console.log("PATH:", pathname);
-  console.log("ACCESS TOKEN EXISTS:", !!accessToken);
-  console.log("REFRESH TOKEN EXISTS:", !!refreshToken);
-  console.log("AUTHENTICATED:", Boolean(accessToken || refreshToken));
-  console.log("===============================");
-
   const isPrivateRoute = privateRoutes.some((route) =>
     pathname.startsWith(route),
   );
@@ -29,13 +22,11 @@ export function middleware(req: NextRequest) {
 
   // not logged in → block private
   if (!isAuthenticated && isPrivateRoute) {
-    console.log("REDIRECTING TO SIGN-IN");
     return NextResponse.redirect(new URL("/sign-in", req.url));
   }
 
   // logged in → block auth pages
   if (isAuthenticated && isPublicRoute) {
-    console.log("REDIRECTING TO PROFILE");
     return NextResponse.redirect(new URL("/profile", req.url));
   }
 

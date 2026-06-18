@@ -14,6 +14,7 @@ export default function SignUpPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError("");
 
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email") as string;
@@ -25,7 +26,9 @@ export default function SignUpPage() {
       const user = await getMe();
       setUser(user);
 
+      // 🔥 CRITICAL FIX
       router.push("/profile");
+      router.refresh();
     } catch {
       setError("Registration failed");
     }
