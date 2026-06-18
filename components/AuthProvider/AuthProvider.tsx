@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
-import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
 import { useAuthStore } from "@/lib/store/authStore";
 import { checkSession, getMe } from "@/lib/api/clientApi";
 
@@ -13,49 +12,30 @@ export default function AuthProvider({
   const setUser = useAuthStore((s) => s.setUser);
   const clearIsAuthenticated = useAuthStore((s) => s.clearIsAuthenticated);
 
-  const pathname = usePathname();
+  const initialized = useRef(false);
 
-  // prevents double execution (React Strict Mode + route changes)
-  const hasInitialized = useRef(false);
-  const isSyncing = useRef(false);
+  useEffect(() => {
+    if (initialized.current) return;
+    initialized.current = true;
 
-  const syncAuth = useCallback(async () => {
-    // prevents cascading / parallel requests
-    if (isSyncing.current) return;
-    isSyncing.current = true;
+    const init = async () => {
+      try {
+        const session = await checkSession();
 
-    try {
-      const sessionValid = await checkSession();
+        if (!session) {
+          clearIsAuthenticated();
+          return;
+        }
 
-      if (!sessionValid) {
+        const user = await getMe();
+        setUser(user);
+      } catch {
         clearIsAuthenticated();
-        return;
       }
+    };
 
-      const user = await getMe();
-      setUser(user);
-    } catch {
-      clearIsAuthenticated();
-    } finally {
-      isSyncing.current = false;
-    }
+    init();
   }, [setUser, clearIsAuthenticated]);
-
-  // INITIAL LOAD (Strict Mode safe)
-  useEffect(() => {
-    if (hasInitialized.current) return;
-    hasInitialized.current = true;
-
-    syncAuth();
-  }, [syncAuth]);
-
-  // ROUTE CHANGE SYNC (SAFE, but NOT spammy)
-  useEffect(() => {
-    // only run after initial load
-    if (!hasInitialized.current) return;
-
-    syncAuth();
-  }, [pathname, syncAuth]);
 
   return <>{children}</>;
 }

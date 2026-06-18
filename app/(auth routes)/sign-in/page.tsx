@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { login, getMe } from "@/lib/api/clientApi";
 import { useAuthStore } from "@/lib/store/authStore";
-import css from "./SignInPage.module.css";
+import css from "./SignIn.module.css";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -14,7 +14,6 @@ export default function SignInPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError("");
 
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email") as string;
@@ -26,9 +25,7 @@ export default function SignInPage() {
       const user = await getMe();
       setUser(user);
 
-      // 🔥 CRITICAL FIX
       router.push("/profile");
-      router.refresh();
     } catch {
       setError("Invalid email or password");
     }
