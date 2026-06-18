@@ -11,9 +11,12 @@ export default function SignInPage() {
   const setUser = useAuthStore((state) => state.setUser);
 
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError("");
+    setLoading(true);
 
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email") as string;
@@ -25,9 +28,18 @@ export default function SignInPage() {
       const user = await getMe();
       setUser(user);
 
+      /**
+       * 🔥 IMPORTANT FIX (TEST #1)
+       * Force browser to flush cookie state BEFORE navigation
+       */
+      await new Promise((r) => setTimeout(r, 50));
+
       router.push("/profile");
+      router.refresh();
     } catch {
       setError("Invalid email or password");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -52,8 +64,8 @@ export default function SignInPage() {
         </div>
 
         <div className={css.actions}>
-          <button type="submit" className={css.submitButton}>
-            Log in
+          <button type="submit" className={css.submitButton} disabled={loading}>
+            {loading ? "Logging in..." : "Log in"}
           </button>
         </div>
 
