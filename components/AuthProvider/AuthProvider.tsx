@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useAuthStore } from "@/lib/store/authStore";
 import { checkSession, getMe } from "@/lib/api/clientApi";
 
@@ -12,30 +12,37 @@ export default function AuthProvider({
   const setUser = useAuthStore((s) => s.setUser);
   const clearIsAuthenticated = useAuthStore((s) => s.clearIsAuthenticated);
 
-  const initialized = useRef(false);
+  const hasInitialized = useRef(false);
+  const isSyncing = useRef(false);
 
-  useEffect(() => {
-    if (initialized.current) return;
-    initialized.current = true;
+  const syncAuth = useCallback(async () => {
+    if (isSyncing.current) return;
+    isSyncing.current = true;
 
-    const init = async () => {
-      try {
-        const session = await checkSession();
+    try {
+      const sessionValid = await checkSession();
 
-        if (!session) {
-          clearIsAuthenticated();
-          return;
-        }
-
-        const user = await getMe();
-        setUser(user);
-      } catch {
+      if (!sessionValid) {
         clearIsAuthenticated();
+        return;
       }
-    };
 
-    init();
+      const user = await getMe();
+      setUser(user);
+    } catch {
+      clearIsAuthenticated();
+    } finally {
+      isSyncing.current = false;
+    }
   }, [setUser, clearIsAuthenticated]);
+
+  // ONLY INITIAL LOAD (NO ROUTE SYNC YET)
+  useEffect(() => {
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+
+    syncAuth();
+  }, [syncAuth]);
 
   return <>{children}</>;
 }
