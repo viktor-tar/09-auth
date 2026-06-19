@@ -28,12 +28,6 @@ export default function SignInPage() {
       const user = await getMe();
       setUser(user);
 
-      /**
-       * 🔥 IMPORTANT FIX (TEST #1)
-       * Force browser to flush cookie state BEFORE navigation
-       */
-      await new Promise((r) => setTimeout(r, 50));
-
       router.push("/profile");
       router.refresh();
     } catch {
