@@ -5,9 +5,9 @@ import { getMe } from "@/lib/api/serverApi";
 import css from "./ProfilePage.module.css";
 
 export default async function ProfilePage() {
-  const cookieHeader = cookies().toString();
+  const cookieStore = await cookies();
 
-  const user = await getMe(cookieHeader);
+  const user = await getMe(cookieStore.toString());
 
   return (
     <main className={css.mainContent}>

@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { login } from "@/lib/api/clientApi";
+import { login, getMe } from "@/lib/api/clientApi";
+import { useAuthStore } from "@/lib/store/authStore";
 import css from "./SignInPage.module.css";
 
 export default function SignInPage() {
   const router = useRouter();
+  const setUser = useAuthStore((state) => state.setUser);
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -23,8 +25,10 @@ export default function SignInPage() {
     try {
       await login({ email, password });
 
+      const user = await getMe();
+      setUser(user);
+
       router.push("/profile");
-      router.refresh(); // triggers AuthProvider re-sync
     } catch {
       setError("Invalid email or password");
     } finally {
