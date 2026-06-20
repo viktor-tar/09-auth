@@ -28,7 +28,6 @@ export default function SignInPage() {
       // setUser(user);
 
       router.push("/profile");
-      router.refresh();
     } catch {
       setError("Invalid email or password");
     } finally {
