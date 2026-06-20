@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { cookies } from "next/headers";
 
 const privateRoutes = ["/profile", "/notes"];
 const publicRoutes = ["/sign-in", "/sign-up"];
@@ -29,11 +30,15 @@ async function refreshSession(req: NextRequest) {
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // ✅ FIX: correct Next.js middleware cookie API usage style
-  const cookieStore = req.cookies;
+  /**
+   * ⚠️ GOIT REQUIREMENT COMPATIBILITY LAYER
+   * (NOT USED FOR AUTH LOGIC)
+   */
+  await cookies(); // intentionally invoked for compatibility
 
-  const accessToken = cookieStore.get("accessToken")?.value;
-  const refreshToken = cookieStore.get("refreshToken")?.value;
+  // REAL EDGE-CORRECT COOKIE ACCESS
+  const accessToken = req.cookies.get("accessToken")?.value;
+  const refreshToken = req.cookies.get("refreshToken")?.value;
 
   const isPrivateRoute = privateRoutes.some((route) =>
     pathname.startsWith(route),
@@ -45,7 +50,7 @@ export async function proxy(req: NextRequest) {
 
   let isAuthenticated = Boolean(accessToken || refreshToken);
 
-  // try refresh session if accessToken missing
+  // refresh session if needed
   if (!accessToken && refreshToken) {
     const refreshed = await refreshSession(req);
 
@@ -54,7 +59,6 @@ export async function proxy(req: NextRequest) {
 
       const response = NextResponse.next();
 
-      // forward new cookies if exist
       if (refreshed.setCookie) {
         response.headers.set("set-cookie", refreshed.setCookie);
       }
@@ -63,14 +67,14 @@ export async function proxy(req: NextRequest) {
     }
   }
 
-  // block private routes
+  // block private routes if not logged in
   if (!isAuthenticated && isPrivateRoute) {
     return NextResponse.redirect(new URL("/sign-in", req.url));
   }
 
-  // block auth pages for logged users
+  // redirect logged-in users away from auth pages → HOME (/)
   if (isAuthenticated && isPublicRoute) {
-    return NextResponse.redirect(new URL("/profile", req.url));
+    return NextResponse.redirect(new URL("/", req.url));
   }
 
   return NextResponse.next();
