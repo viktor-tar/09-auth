@@ -7,9 +7,11 @@ import { getMe } from "@/lib/api/serverApi";
 import css from "./ProfilePage.module.css";
 
 export default async function ProfilePage() {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
 
-  const user = await getMe(cookieStore.toString());
+  const cookieHeader = cookieStore.toString();
+
+  const user = await getMe(cookieHeader);
 
   return (
     <main className={css.mainContent}>
