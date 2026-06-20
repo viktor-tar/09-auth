@@ -1,14 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
 import { cookies } from "next/headers";
+
 import { getMe } from "@/lib/api/serverApi";
+
 import css from "./ProfilePage.module.css";
 
 export default async function ProfilePage() {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
 
   const cookieHeader = cookieStore.toString();
-  // ⚠️ OK in this backend setup because API route already expects cookie string
 
   const user = await getMe(cookieHeader);
 
@@ -37,6 +38,7 @@ export default async function ProfilePage() {
           <p>
             <strong>Username:</strong> {user.username}
           </p>
+
           <p>
             <strong>Email:</strong> {user.email}
           </p>
