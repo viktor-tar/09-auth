@@ -1,7 +1,9 @@
 import { api } from "./api";
 import type { User } from "@/types/user";
+import type { Note } from "@/types/note";
+import type { AxiosResponse } from "axios";
 
-interface FetchNotesParams {
+export interface FetchNotesParams {
   page?: number;
   search?: string;
   perPage?: number;
@@ -10,8 +12,11 @@ interface FetchNotesParams {
 
 /* ================= NOTES ================= */
 
-export const fetchNotes = async (params: FetchNotesParams, cookies: string) => {
-  const res = await api.get("/api/notes", {
+export const fetchNotes = async (
+  params: FetchNotesParams,
+  cookies: string,
+): Promise<Note[]> => {
+  const res = await api.get<Note[]>("/notes", {
     params,
     headers: {
       Cookie: cookies,
@@ -21,8 +26,11 @@ export const fetchNotes = async (params: FetchNotesParams, cookies: string) => {
   return res.data;
 };
 
-export const fetchNoteById = async (id: string, cookies: string) => {
-  const res = await api.get(`/api/notes/${id}`, {
+export const fetchNoteById = async (
+  id: string,
+  cookies: string,
+): Promise<Note> => {
+  const res = await api.get<Note>(`/notes/${id}`, {
     headers: {
       Cookie: cookies,
     },
@@ -33,8 +41,8 @@ export const fetchNoteById = async (id: string, cookies: string) => {
 
 /* ================= USER ================= */
 
-export const getMe = async (cookies: string) => {
-  const res = await api.get<User>("/api/users/me", {
+export const getMe = async (cookies: string): Promise<User> => {
+  const res = await api.get<User>("/users/me", {
     headers: {
       Cookie: cookies,
     },
@@ -45,16 +53,10 @@ export const getMe = async (cookies: string) => {
 
 /* ================= SESSION ================= */
 
-export const checkSession = async (cookies: string): Promise<boolean> => {
-  try {
-    await api.get("/api/auth/session", {
-      headers: {
-        Cookie: cookies,
-      },
-    });
-
-    return true;
-  } catch {
-    return false;
-  }
+export const checkSession = async (cookies: string): Promise<AxiosResponse> => {
+  return api.get("/auth/session", {
+    headers: {
+      Cookie: cookies,
+    },
+  });
 };

@@ -4,24 +4,24 @@ import type { User } from "@/types/user";
 /* ================= AUTH ================= */
 
 export const register = async (data: { email: string; password: string }) => {
-  const res = await api.post<User>("/api/auth/register", data);
+  const res = await api.post<User>("/auth/register", data);
   return res.data;
 };
 
 export const login = async (data: { email: string; password: string }) => {
-  const res = await api.post<User>("/api/auth/login", data);
+  const res = await api.post<User>("/auth/login", data);
   return res.data;
 };
 
 export const logout = async () => {
-  await api.post("/api/auth/logout");
+  await api.post("/auth/logout");
 };
 
 /* ================= SESSION ================= */
 
 export const checkSession = async () => {
   try {
-    await api.get("/api/auth/session");
+    await api.get("/auth/session");
     return true;
   } catch {
     return false;
@@ -31,12 +31,12 @@ export const checkSession = async () => {
 /* ================= USER ================= */
 
 export const getMe = async () => {
-  const res = await api.get<User>("/api/users/me");
+  const res = await api.get<User>("/users/me");
   return res.data;
 };
 
 export const updateMe = async (data: Partial<User>) => {
-  const res = await api.patch<User>("/api/users/me", data);
+  const res = await api.patch<User>("/users/me", data);
   return res.data;
 };
 
@@ -48,12 +48,12 @@ export const fetchNotes = async (params?: {
   perPage?: number;
   tag?: string;
 }) => {
-  const res = await api.get("/api/notes", { params });
+  const res = await api.get("/notes", { params });
   return res.data;
 };
 
 export const fetchNoteById = async (id: string) => {
-  const res = await api.get(`/api/notes/${id}`);
+  const res = await api.get(`/notes/${id}`);
   return res.data;
 };
 
@@ -62,11 +62,11 @@ export const createNote = async (data: {
   content: string;
   tag: string;
 }) => {
-  const res = await api.post("/api/notes", data);
+  const res = await api.post("/notes", data);
   return res.data;
 };
 
 export const deleteNote = async (id: string) => {
-  const res = await api.delete(`/api/notes/${id}`);
+  const res = await api.delete(`/notes/${id}`);
   return res.data;
 };

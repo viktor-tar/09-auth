@@ -4,7 +4,22 @@ import type { NextRequest } from "next/server";
 const privateRoutes = ["/profile", "/notes"];
 const publicRoutes = ["/sign-in", "/sign-up"];
 
-export function proxy(req: NextRequest) {
+async function refreshSession(req: NextRequest) {
+  try {
+    const res = await fetch(`${req.nextUrl.origin}/api/auth/session`, {
+      method: "GET",
+      headers: {
+        cookie: req.headers.get("cookie") || "",
+      },
+    });
+
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   const accessToken = req.cookies.get("accessToken")?.value;
@@ -18,7 +33,15 @@ export function proxy(req: NextRequest) {
     pathname.startsWith(route),
   );
 
-  const isAuthenticated = Boolean(accessToken || refreshToken);
+  let isAuthenticated = Boolean(accessToken || refreshToken);
+
+  // 🔥 NEW: try refresh session if no access token
+  if (!accessToken && refreshToken) {
+    const refreshed = await refreshSession(req);
+    if (refreshed) {
+      isAuthenticated = true;
+    }
+  }
 
   // not logged in → block private
   if (!isAuthenticated && isPrivateRoute) {
