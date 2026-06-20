@@ -1,15 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { cookies } from "next/headers";
-
 import { getMe } from "@/lib/api/serverApi";
-
 import css from "./ProfilePage.module.css";
 
 export default async function ProfilePage() {
-  const cookieStore = await cookies();
-
-  const cookieHeader = cookieStore.toString();
+  const cookieHeader = cookies().toString();
 
   const user = await getMe(cookieHeader);
 
