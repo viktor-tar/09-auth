@@ -15,12 +15,7 @@ export default function AuthProvider({
   useEffect(() => {
     const init = async () => {
       try {
-        const isValid = await checkSession();
-
-        if (!isValid) {
-          clearIsAuthenticated();
-          return;
-        }
+        await checkSession(); // just ensure session exists
 
         const user = await getMe();
         setUser(user);
@@ -30,9 +25,7 @@ export default function AuthProvider({
     };
 
     init();
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [setUser, clearIsAuthenticated]);
 
   return <>{children}</>;
 }
