@@ -15,7 +15,6 @@ async function refreshSession(req: NextRequest) {
 
     if (!res.ok) return null;
 
-    // 🔥 IMPORTANT FIX: get new cookies from backend
     const setCookie = res.headers.get("set-cookie");
 
     return {
@@ -30,8 +29,11 @@ async function refreshSession(req: NextRequest) {
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  const accessToken = req.cookies.get("accessToken")?.value;
-  const refreshToken = req.cookies.get("refreshToken")?.value;
+  // ✅ FIX: correct Next.js middleware cookie API usage style
+  const cookieStore = req.cookies;
+
+  const accessToken = cookieStore.get("accessToken")?.value;
+  const refreshToken = cookieStore.get("refreshToken")?.value;
 
   const isPrivateRoute = privateRoutes.some((route) =>
     pathname.startsWith(route),
@@ -52,7 +54,7 @@ export async function proxy(req: NextRequest) {
 
       const response = NextResponse.next();
 
-      // 🔥 IMPORTANT FIX: forward new cookies
+      // forward new cookies if exist
       if (refreshed.setCookie) {
         response.headers.set("set-cookie", refreshed.setCookie);
       }
@@ -61,12 +63,12 @@ export async function proxy(req: NextRequest) {
     }
   }
 
-  // not logged in → block private
+  // block private routes
   if (!isAuthenticated && isPrivateRoute) {
     return NextResponse.redirect(new URL("/sign-in", req.url));
   }
 
-  // logged in → block auth pages
+  // block auth pages for logged users
   if (isAuthenticated && isPublicRoute) {
     return NextResponse.redirect(new URL("/profile", req.url));
   }
