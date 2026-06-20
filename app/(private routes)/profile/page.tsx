@@ -11,10 +11,6 @@ export const metadata: Metadata = {
   description: "User profile page",
 };
 
-export async function generateMetadata(): Promise<Metadata> {
-  return metadata;
-}
-
 export default async function ProfilePage() {
   const cookieStore = await cookies();
   const cookieHeader = cookieStore.toString();
