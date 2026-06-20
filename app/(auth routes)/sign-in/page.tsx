@@ -2,13 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { login, getMe } from "@/lib/api/clientApi";
-import { useAuthStore } from "@/lib/store/authStore";
+import { login } from "@/lib/api/clientApi";
+
 import css from "./SignInPage.module.css";
 
 export default function SignInPage() {
   const router = useRouter();
-  const setUser = useAuthStore((state) => state.setUser);
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -24,9 +23,6 @@ export default function SignInPage() {
 
     try {
       await login({ email, password });
-
-      const user = await getMe();
-      setUser(user);
 
       router.push("/profile");
       router.refresh();
