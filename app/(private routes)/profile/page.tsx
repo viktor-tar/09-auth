@@ -7,7 +7,7 @@ import { getMe } from "@/lib/api/serverApi";
 import css from "./ProfilePage.module.css";
 
 export default async function ProfilePage() {
-  const cookieStore = await cookies();
+  const cookieStore = cookies();
 
   const user = await getMe(cookieStore.toString());
 
@@ -15,10 +15,10 @@ export default async function ProfilePage() {
     <main className={css.mainContent}>
       <div className={css.profileCard}>
         <div className={css.header}>
-          <h1 className={css.formTitle}>Profile</h1>
+          <h1 className={css.formTitle}>Profile Page</h1>
 
           <Link href="/profile/edit" className={css.editProfileButton}>
-            Edit profile
+            Edit Profile
           </Link>
         </div>
 
@@ -33,10 +33,9 @@ export default async function ProfilePage() {
         </div>
 
         <div className={css.profileInfo}>
-          <div className={css.usernameWrapper}>
-            <strong>Username:</strong>
-            <span>{user.username}</span>
-          </div>
+          <p>
+            <strong>Username:</strong> {user.username}
+          </p>
 
           <p>
             <strong>Email:</strong> {user.email}

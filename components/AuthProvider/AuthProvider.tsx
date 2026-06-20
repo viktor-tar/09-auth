@@ -20,9 +20,9 @@ export default function AuthProvider({
 
     const init = async () => {
       try {
-        const session = await checkSession();
+        const isValid = await checkSession();
 
-        if (!session) {
+        if (!isValid) {
           clearIsAuthenticated();
           return;
         }
