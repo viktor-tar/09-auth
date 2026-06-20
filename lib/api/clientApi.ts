@@ -1,5 +1,6 @@
 import { api } from "./api";
 import type { User } from "@/types/user";
+import type { Note } from "@/types/note";
 
 /* ================= AUTH ================= */
 
@@ -48,12 +49,12 @@ export const fetchNotes = async (params?: {
   perPage?: number;
   tag?: string;
 }) => {
-  const res = await api.get("/notes", { params });
+  const res = await api.get<Note[]>("/notes", { params });
   return res.data;
 };
 
 export const fetchNoteById = async (id: string) => {
-  const res = await api.get(`/notes/${id}`);
+  const res = await api.get<Note>(`/notes/${id}`);
   return res.data;
 };
 
@@ -62,11 +63,11 @@ export const createNote = async (data: {
   content: string;
   tag: string;
 }) => {
-  const res = await api.post("/notes", data);
+  const res = await api.post<Note>("/notes", data);
   return res.data;
 };
 
 export const deleteNote = async (id: string) => {
-  const res = await api.delete(`/notes/${id}`);
+  const res = await api.delete<Note>(`/notes/${id}`);
   return res.data;
 };

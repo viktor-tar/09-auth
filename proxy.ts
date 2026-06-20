@@ -13,9 +13,17 @@ async function refreshSession(req: NextRequest) {
       },
     });
 
-    return res.ok;
+    if (!res.ok) return null;
+
+    // 🔥 IMPORTANT FIX: get new cookies from backend
+    const setCookie = res.headers.get("set-cookie");
+
+    return {
+      ok: true,
+      setCookie,
+    };
   } catch {
-    return false;
+    return null;
   }
 }
 
@@ -35,11 +43,21 @@ export async function proxy(req: NextRequest) {
 
   let isAuthenticated = Boolean(accessToken || refreshToken);
 
-  // 🔥 NEW: try refresh session if no access token
+  // try refresh session if accessToken missing
   if (!accessToken && refreshToken) {
     const refreshed = await refreshSession(req);
-    if (refreshed) {
+
+    if (refreshed?.ok) {
       isAuthenticated = true;
+
+      const response = NextResponse.next();
+
+      // 🔥 IMPORTANT FIX: forward new cookies
+      if (refreshed.setCookie) {
+        response.headers.set("set-cookie", refreshed.setCookie);
+      }
+
+      return response;
     }
   }
 
