@@ -22,7 +22,7 @@ export default function AuthProvider({
       try {
         const session = await checkSession();
 
-        if (!session) {
+        if (!session.success) {
           clearIsAuthenticated();
           return;
         }

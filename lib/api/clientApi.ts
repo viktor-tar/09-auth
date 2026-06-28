@@ -26,12 +26,12 @@ export const logout = async (): Promise<void> => {
 
 /* ================= SESSION ================= */
 
-export const checkSession = async (): Promise<boolean> => {
+export const checkSession = async (): Promise<{ success: boolean }> => {
   try {
-    await api.get("/auth/session");
-    return true;
+    const res = await api.get<{ success: boolean }>("/auth/session");
+    return res.data;
   } catch {
-    return false;
+    return { success: false };
   }
 };
 

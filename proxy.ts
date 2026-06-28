@@ -50,7 +50,12 @@ export async function proxy(req: NextRequest) {
 
   let isAuthenticated = Boolean(accessToken || refreshToken);
 
-  // refresh session if needed
+  // Refresh session if needed.
+  // Runs when refreshToken exists but accessToken is missing
+  // (expired, deleted, etc.).
+  // We call /api/auth/session to get fresh auth cookies and
+  // attach the returned Set-Cookie header to the response (NextResponse.next) so
+  // the browser can store the new cookies.
   if (!accessToken && refreshToken) {
     const refreshed = await refreshSession(req);
 
